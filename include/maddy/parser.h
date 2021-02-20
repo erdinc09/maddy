@@ -25,6 +25,8 @@
 #include "maddy/unorderedlistparser.h"
 
 // LineParser
+#include <iostream>
+
 #include "maddy/breaklineparser.h"
 #include "maddy/emphasizedparser.h"
 #include "maddy/imageparser.h"
@@ -84,6 +86,7 @@ public:
 
     for (std::string line; std::getline(markdown, line);)
     {
+      // std::cout << "[" << line << "]" << std::endl;
       if (!currentBlockParser)
       {
         currentBlockParser = getBlockParserForLine(line);

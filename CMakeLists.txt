@@ -1,15 +1,21 @@
 # This project is licensed under the MIT license. For more information see the
 # LICENSE file.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
+
+include("external/cmake/HunterGate.cmake")
+huntergate(URL "https://github.com/cpp-pm/hunter/archive/v0.23.279.tar.gz" SHA1 "0a8ede485c3e9c1ceed8ccb989ab6c0aba1f4db7")
 
 project(maddy)
+
+hunter_add_package(GTest)
+find_package(GTest CONFIG REQUIRED)
 
 enable_testing()
 
 # ------------------------------------------------------------------------------
 
-set(MADDY_CPP_VERSION 14)
+set(MADDY_CPP_VERSION 17)
 add_definitions(-DCPP_VERSION=${MADDY_CPP_VERSION})
 
 # ------------------------------------------------------------------------------
@@ -21,7 +27,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # ------------------------------------------------------------------------------
 
 set(MADDY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-file(GLOB_RECURSE MADDY_TESTS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/maddy/*.cpp)
+file(GLOB_RECURSE MADDY_FILES ${MADDY_INCLUDE_DIR}/maddy/*.h)
+file(GLOB_RECURSE MADDY_TESTS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/maddy/*.*)
 
 # ------------------------------------------------------------------------------
 
@@ -52,15 +59,11 @@ if (UNIX AND NOT APPLE)
   endif()
 endif()
 
-# ------------------------------------------------------------------------------
-
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/gtest/googlemock)
-add_subdirectory(libs)
 
 # ------------------------------------------------------------------------------
 
-add_library(maddy INTERFACE)
+add_library(maddy INTERFACE ${MADDY_FILES} README.md)
+
 target_include_directories(maddy INTERFACE
   ${MADDY_INCLUDE_DIR}
 )
@@ -76,5 +79,5 @@ target_include_directories(MaddyTests PUBLIC
   ${LIBS_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/tests
 )
-target_link_libraries(MaddyTests maddy gmock_main)
+target_link_libraries(MaddyTests maddy GTest::gtest GTest::gmock)
 add_test(MaddyTests ${CMAKE_CURRENT_SOURCE_DIR}/build/MaddyTests)

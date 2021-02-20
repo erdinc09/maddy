@@ -6,8 +6,8 @@
 
 // -----------------------------------------------------------------------------
 
-#include <string>
 #include <regex>
+#include <string>
 
 #include "maddy/lineparser.h"
 
