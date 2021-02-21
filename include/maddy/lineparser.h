@@ -38,7 +38,7 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  virtual void Parse(std::string& line) = 0;
+  virtual void Parse(std::string& line) const = 0;
 }; // class LineParser
 
 // -----------------------------------------------------------------------------

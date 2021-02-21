@@ -25,22 +25,21 @@ namespace maddy {
  */
 class ChecklistParser : public BlockParser
 {
-public:
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-   ChecklistParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-  {}
+  ChecklistParser(
+      ParseLineCallbackType parseLineCallback,
+      GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        isStarted(false),
+        isFinished(false) {}
 
   /**
    * IsStartingLine
@@ -51,9 +50,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
+  static bool IsStartingLine(const std::string& line) {
     static std::regex re("^- \\[[x| ]\\] .*");
     return std::regex_match(line, re);
   }
@@ -83,9 +80,7 @@ protected:
     return true;
   }
 
-  void
-  parseBlock(std::string& line) override
-  {
+  void parseBlock(std::string& line) override {
     bool isStartOfNewListItem = IsStartingLine(line);
     uint32_t indentation = getIndentationWidth(line);
 

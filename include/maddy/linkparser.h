@@ -38,14 +38,12 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  void
-  Parse(std::string& line) override
-  {
-    static std::regex re("\\[([^\\]]*)\\]\\(([^\\]]*)\\)");
-    static std::string replacement = "<a href=\"$2\">$1</a>";
+ void Parse(std::string& line) const override {
+   static std::regex re("\\[([^\\]]*)\\]\\(([^\\]]*)\\)");
+   static std::string replacement = "<a href=\"$2\">$1</a>";
 
-    line = std::regex_replace(line, re, replacement);
-  }
+   line = std::regex_replace(line, re, replacement);
+ }
 }; // class LinkParser
 
 // -----------------------------------------------------------------------------

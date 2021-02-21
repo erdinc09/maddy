@@ -7,8 +7,8 @@
 // -----------------------------------------------------------------------------
 
 #include <functional>
-#include <string>
 #include <regex>
+#include <string>
 
 #include "maddy/blockparser.h"
 
@@ -27,23 +27,21 @@ namespace maddy {
  *
  * @class
  */
-class HorizontalLineParser : public BlockParser
-{
-public:
+class HorizontalLineParser : public BlockParser {
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
   HorizontalLineParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , lineRegex("^---$")
-  {}
+      ParseLineCallbackType parseLineCallback,
+      GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        lineRegex("^---$") {}
 
   /**
    * IsStartingLine
@@ -54,9 +52,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
+  static bool IsStartingLine(const std::string& line) {
     static std::regex re("^---$");
     return std::regex_match(line, re);
   }
@@ -70,37 +66,23 @@ public:
    * @method
    * @return {bool}
    */
-  bool
-  IsFinished() const override
-  {
-    return true;
-  }
+  bool IsFinished() const override { return true; }
 
-protected:
-  bool
-  isInlineBlockAllowed() const override
-  {
-    return false;
-  }
+ protected:
+  bool isInlineBlockAllowed() const override { return false; }
 
-  bool
-  isLineParserAllowed() const override
-  {
-    return false;
-  }
+  bool isLineParserAllowed() const override { return false; }
 
-  void
-  parseBlock(std::string& line) override
-  {
+  void parseBlock(std::string& line) override {
     static std::string replacement = "<hr/>";
 
     line = std::regex_replace(line, lineRegex, replacement);
   }
 
-private:
+ private:
   std::regex lineRegex;
-}; // class HorizontalLineParser
+};  // class HorizontalLineParser
 
 // -----------------------------------------------------------------------------
 
-} // namespace maddy
+}  // namespace maddy

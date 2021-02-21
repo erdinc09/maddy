@@ -10,12 +10,17 @@
 #include <sstream>
 #include <string>
 // windows compatibility includes
-#include <cctype>
 #include <algorithm>
+#include <cctype>
 
 // -----------------------------------------------------------------------------
 
 namespace maddy {
+
+using ParseLineCallbackType = std::function<void(std::string&)>;
+class BlockParser;
+using GetBlockParserForLineCallbackType =
+    std::function<std::unique_ptr<BlockParser>(const std::string& line)>;
 
 // -----------------------------------------------------------------------------
 
@@ -28,25 +33,22 @@ namespace maddy {
  *
  * @class
  */
-class BlockParser
-{
-public:
+class BlockParser {
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-  BlockParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : result("", std::ios_base::ate | std::ios_base::in | std::ios_base::out)
-    , childParser(nullptr)
-    , parseLineCallback(parseLineCallback)
-    , getBlockParserForLineCallback(getBlockParserForLineCallback)
-  {}
+  BlockParser(ParseLineCallbackType parseLineCallback,
+              GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : result("", std::ios_base::ate | std::ios_base::in | std::ios_base::out),
+        childParser(nullptr),
+        parseLineCallback(parseLineCallback),
+        getBlockParserForLineCallback(getBlockParserForLineCallback) {}
 
   /**
    * dtor
@@ -64,22 +66,17 @@ public:
    * @param {std::string&} line
    * @return {void}
    */
-  virtual void
-  AddLine(std::string& line)
-  {
+  virtual void AddLine(std::string& line) {
     this->parseBlock(line);
 
-    if (this->isInlineBlockAllowed() && !this->childParser)
-    {
+    if (this->isInlineBlockAllowed() && !this->childParser) {
       this->childParser = this->getBlockParserForLine(line);
     }
 
-    if (this->childParser)
-    {
+    if (this->childParser) {
       this->childParser->AddLine(line);
 
-      if (this->childParser->IsFinished())
-      {
+      if (this->childParser->IsFinished()) {
         this->result << this->childParser->GetResult().str();
         this->childParser = nullptr;
       }
@@ -87,8 +84,7 @@ public:
       return;
     }
 
-    if (this->isLineParserAllowed())
-    {
+    if (this->isLineParserAllowed()) {
       this->parseLine(line);
     }
 
@@ -113,11 +109,7 @@ public:
    * @method
    * @return {std::stringstream}
    */
-  std::stringstream&
-  GetResult()
-  {
-    return this->result;
-  }
+  std::stringstream& GetResult() { return this->result; }
 
   /**
    * Clear
@@ -129,75 +121,55 @@ public:
    * @method
    * @return {void}
    */
-  void
-  Clear()
-  {
-    this->result.str("");
-  }
+  void Clear() { this->result.str(""); }
 
-protected:
+ protected:
   std::stringstream result;
-  std::shared_ptr<BlockParser> childParser;
+  std::unique_ptr<BlockParser> childParser;
 
   virtual bool isInlineBlockAllowed() const = 0;
   virtual bool isLineParserAllowed() const = 0;
   virtual void parseBlock(std::string& line) = 0;
 
-  void
-  parseLine(std::string& line)
-  {
-    if (parseLineCallback)
-    {
+  void parseLine(std::string& line) {
+    if (parseLineCallback) {
       parseLineCallback(line);
     }
   }
 
-  uint32_t
-  getIndentationWidth(const std::string& line) const
-  {
+  uint32_t getIndentationWidth(const std::string& line) const {
     bool hasMetNonSpace = false;
 
-    uint32_t indentation = static_cast<uint32_t>(
-      std::count_if(
-        line.begin(),
-        line.end(),
-        [&hasMetNonSpace](unsigned char c)
-        {
-          if (hasMetNonSpace)
-          {
+    uint32_t indentation = static_cast<uint32_t>(std::count_if(
+        line.begin(), line.end(), [&hasMetNonSpace](unsigned char c) {
+          if (hasMetNonSpace) {
             return false;
           }
 
-          if (std::isspace(c))
-          {
+          if (std::isspace(c)) {
             return true;
           }
 
           hasMetNonSpace = true;
           return false;
-        }
-      )
-    );
+        }));
 
     return indentation;
   }
 
-  std::shared_ptr<BlockParser>
-  getBlockParserForLine(const std::string& line)
-  {
-    if (getBlockParserForLineCallback)
-    {
+  std::unique_ptr<BlockParser> getBlockParserForLine(const std::string& line) {
+    if (getBlockParserForLineCallback) {
       return getBlockParserForLineCallback(line);
     }
 
     return nullptr;
   }
 
-private:
-  std::function<void(std::string&)> parseLineCallback;
-  std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback;
-}; // class BlockParser
+ private:
+  ParseLineCallbackType parseLineCallback;
+  GetBlockParserForLineCallbackType getBlockParserForLineCallback;
+};  // class BlockParser
 
 // -----------------------------------------------------------------------------
 
-} // namespace maddy
+}  // namespace maddy

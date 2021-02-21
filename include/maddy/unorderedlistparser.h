@@ -23,24 +23,22 @@ namespace maddy {
  *
  * @class
  */
-class UnorderedListParser : public BlockParser
-{
-public:
+class UnorderedListParser : public BlockParser {
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-   UnorderedListParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-  {}
+  UnorderedListParser(
+      ParseLineCallbackType parseLineCallback,
+      GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        isStarted(false),
+        isFinished(false) {}
 
   /**
    * IsStartingLine
@@ -51,9 +49,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
+  static bool IsStartingLine(const std::string& line) {
     static std::regex re("^[+*-] .*");
     return std::regex_match(line, re);
   }
@@ -64,70 +60,49 @@ public:
    * @method
    * @return {bool}
    */
-  bool
-  IsFinished() const override
-  {
-    return this->isFinished;
-  }
+  bool IsFinished() const override { return this->isFinished; }
 
-protected:
-  bool
-  isInlineBlockAllowed() const override
-  {
-    return true;
-  }
+ protected:
+  bool isInlineBlockAllowed() const override { return true; }
 
-  bool
-  isLineParserAllowed() const override
-  {
-    return true;
-  }
+  bool isLineParserAllowed() const override { return true; }
 
-  void
-  parseBlock(std::string& line) override
-  {
+  void parseBlock(std::string& line) override {
     bool isStartOfNewListItem = IsStartingLine(line);
     uint32_t indentation = getIndentationWidth(line);
 
     static std::regex lineRegex("^([+*-] )");
     line = std::regex_replace(line, lineRegex, "");
 
-    if (!this->isStarted)
-    {
+    if (!this->isStarted) {
       line = "<ul><li>" + line;
       this->isStarted = true;
       return;
     }
 
-    if (indentation >= 2)
-    {
+    if (indentation >= 2) {
       line = line.substr(2);
       return;
     }
 
-    if (
-      line.empty() ||
-      line.find("</li><li>") != std::string::npos ||
-      line.find("</li></ol>") != std::string::npos ||
-      line.find("</li></ul>") != std::string::npos
-    )
-    {
+    if (line.empty() || line.find("</li><li>") != std::string::npos ||
+        line.find("</li></ol>") != std::string::npos ||
+        line.find("</li></ul>") != std::string::npos) {
       line = "</li></ul>" + line;
       this->isFinished = true;
       return;
     }
 
-    if (isStartOfNewListItem)
-    {
+    if (isStartOfNewListItem) {
       line = "</li><li>" + line;
     }
   }
 
-private:
+ private:
   bool isStarted;
   bool isFinished;
-}; // class UnorderedListParser
+};  // class UnorderedListParser
 
 // -----------------------------------------------------------------------------
 
-} // namespace maddy
+}  // namespace maddy

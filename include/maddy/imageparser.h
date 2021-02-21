@@ -26,7 +26,7 @@ namespace maddy {
  */
 class ImageParser : public LineParser
 {
-public:
+ public:
   /**
    * Parse
    *
@@ -38,9 +38,7 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  void
-  Parse(std::string& line) override
-  {
+  void Parse(std::string& line) const override {
     static std::regex re("\\!\\[([^\\]]*)\\]\\(([^\\]]*)\\)");
     static std::string replacement = "<img src=\"$2\" alt=\"$1\"/>";
 

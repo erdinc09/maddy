@@ -36,14 +36,12 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  void
-  Parse(std::string& line) override
-  {
-    static std::regex re("`([^`]*)`");
-    static std::string replacement = "<code>$1</code>";
+ void Parse(std::string& line) const override {
+   static std::regex re("`([^`]*)`");
+   static std::string replacement = "<code>$1</code>";
 
-    line = std::regex_replace(line, re, replacement);
-  }
+   line = std::regex_replace(line, re, replacement);
+ }
 }; // class InlineCodeParser
 
 // -----------------------------------------------------------------------------

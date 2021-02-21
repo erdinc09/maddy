@@ -5,63 +5,52 @@
 #include <memory>
 
 #include "gmock/gmock.h"
-
 #include "maddy/checklistparser.h"
 
 // -----------------------------------------------------------------------------
 
-class MADDY_CHECKLISTPARSER : public ::testing::Test
-{
-protected:
-  std::shared_ptr<maddy::ChecklistParser> clParser;
+class MADDY_CHECKLISTPARSER : public ::testing::Test {
+ protected:
+  std::unique_ptr<maddy::ChecklistParser> clParser;
 
-  void
-  SetUp() override
-  {
-    std::function<std::shared_ptr<maddy::BlockParser>(const std::string& line)> getBlockParserForLineCallback = [](const std::string& line)
-    {
-      if (maddy::ChecklistParser::IsStartingLine(line))
-      {
-        return std::static_pointer_cast<maddy::BlockParser>(
-          std::make_shared<maddy::ChecklistParser>(nullptr, nullptr)
-        );
-      }
+  void SetUp() override {
+    std::function<std::unique_ptr<maddy::BlockParser>(const std::string& line)>
+        getBlockParserForLineCallback = [](const std::string& line) {
+          if (maddy::ChecklistParser::IsStartingLine(line)) {
+            std::unique_ptr<maddy::BlockParser> parser =
+                std::make_unique<maddy::ChecklistParser>(nullptr, nullptr);
+            return parser;
+          }
 
-      std::shared_ptr<maddy::BlockParser> empty;
-      return empty;
-    };
+          std::unique_ptr<maddy::BlockParser> empty;
+          return empty;
+        };
 
-    this->clParser = std::make_shared<maddy::ChecklistParser>(
-      nullptr,
-      getBlockParserForLineCallback
-    );
+    this->clParser = std::make_unique<maddy::ChecklistParser>(
+        nullptr, getBlockParserForLineCallback);
   }
 };
 
 // -----------------------------------------------------------------------------
 
-TEST_F(MADDY_CHECKLISTPARSER, IsStartingLineReturnsTrueWhenFacedWithBeginningOfList)
-{
+TEST_F(MADDY_CHECKLISTPARSER,
+       IsStartingLineReturnsTrueWhenFacedWithBeginningOfList) {
   ASSERT_TRUE(maddy::ChecklistParser::IsStartingLine("- [ ] a"));
   ASSERT_TRUE(maddy::ChecklistParser::IsStartingLine("- [x] b"));
 }
 
-TEST_F(MADDY_CHECKLISTPARSER, IsFinishedAlwaysReturnsFalseInTheBeginning)
-{
+TEST_F(MADDY_CHECKLISTPARSER, IsFinishedAlwaysReturnsFalseInTheBeginning) {
   ASSERT_FALSE(clParser->IsFinished());
 }
 
-TEST_F(MADDY_CHECKLISTPARSER, ItReplacesMarkdownWithAnHtmlChecklist)
-{
-  std::vector<std::string> markdown = {
-    "- [ ] a"
-    , "- [x] b"
-    , ""
-  };
-  std::string expected = "<ul class=\"checklist\"><li><label><input type=\"checkbox\"/> a</label></li><li><label><input type=\"checkbox\" checked=\"checked\"/> b</label></li></ul>";
+TEST_F(MADDY_CHECKLISTPARSER, ItReplacesMarkdownWithAnHtmlChecklist) {
+  std::vector<std::string> markdown = {"- [ ] a", "- [x] b", ""};
+  std::string expected =
+      "<ul class=\"checklist\"><li><label><input type=\"checkbox\"/> "
+      "a</label></li><li><label><input type=\"checkbox\" checked=\"checked\"/> "
+      "b</label></li></ul>";
 
-  for (std::string md : markdown)
-  {
+  for (std::string md : markdown) {
     clParser->AddLine(md);
   }
 
@@ -73,20 +62,18 @@ TEST_F(MADDY_CHECKLISTPARSER, ItReplacesMarkdownWithAnHtmlChecklist)
   ASSERT_EQ(expected, outputString);
 }
 
-TEST_F(MADDY_CHECKLISTPARSER, ItReplacesMarkdownWithAnHierachicalHtmlList)
-{
-  std::vector<std::string> markdown = {
-    "- [ ] a"
-    , "  - [ ] d"
-    , "  - [ ] e"
-    , "- [ ] b"
-    , "  - [x] c"
-    , ""
-  };
-  std::string expected = "<ul class=\"checklist\"><li><label><input type=\"checkbox\"/> a<ul class=\"checklist\"><li><label><input type=\"checkbox\"/> d</label></li><li><label><input type=\"checkbox\"/> e</label></li></ul></label></li><li><label><input type=\"checkbox\"/> b<ul class=\"checklist\"><li><label><input type=\"checkbox\" checked=\"checked\"/> c</label></li></ul></label></li></ul>";
+TEST_F(MADDY_CHECKLISTPARSER, ItReplacesMarkdownWithAnHierachicalHtmlList) {
+  std::vector<std::string> markdown = {"- [ ] a", "  - [ ] d", "  - [ ] e",
+                                       "- [ ] b", "  - [x] c", ""};
+  std::string expected =
+      "<ul class=\"checklist\"><li><label><input type=\"checkbox\"/> a<ul "
+      "class=\"checklist\"><li><label><input type=\"checkbox\"/> "
+      "d</label></li><li><label><input type=\"checkbox\"/> "
+      "e</label></li></ul></label></li><li><label><input type=\"checkbox\"/> "
+      "b<ul class=\"checklist\"><li><label><input type=\"checkbox\" "
+      "checked=\"checked\"/> c</label></li></ul></label></li></ul>";
 
-  for (std::string md : markdown)
-  {
+  for (std::string md : markdown) {
     clParser->AddLine(md);
   }
 

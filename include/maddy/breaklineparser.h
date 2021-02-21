@@ -24,7 +24,7 @@ namespace maddy {
  */
 class BreakLineParser : public LineParser
 {
-public:
+ public:
   /**
    * Parse
    *
@@ -36,10 +36,8 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  void
-  Parse(std::string& line) override
-  {
-    static std::regex re(R"((\r\n|\r))");
+  void Parse(std::string& line) const override {
+    static std::regex re("(\r\n|\r)");  // R"((\r\n|\r))"
     static std::string replacement = "<br>";
 
     line = std::regex_replace(line, re, replacement);

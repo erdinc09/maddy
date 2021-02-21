@@ -25,52 +25,43 @@ namespace maddy {
 class HtmlParser : public BlockParser
 {
 public:
-  /**
-   * ctor
-   *
-   * @method
-   * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
-   */
-   HtmlParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-    , isGreaterThanFound(false)
-  {}
+ /**
+  * ctor
+  *
+  * @method
+  * @param {std::function<void(std::string&)>} parseLineCallback
+  * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+  * line)>} getBlockParserForLineCallback
+  */
+ HtmlParser(ParseLineCallbackType parseLineCallback,
+            std::function<std::unique_ptr<BlockParser>(const std::string& line)>
+                getBlockParserForLineCallback)
+     : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+       isStarted(false),
+       isFinished(false),
+       isGreaterThanFound(false) {}
 
-  /**
-   * IsStartingLine
-   *
-   * If the line is starting with `<`, HTML is expected to follow.
-   * Nothing after that will be parsed, it only is copied.
-   *
-   * @method
-   * @param {const std::string&} line
-   * @return {bool}
-   */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
-    return line[0] == '<';
-  }
+ /**
+  * IsStartingLine
+  *
+  * If the line is starting with `<`, HTML is expected to follow.
+  * Nothing after that will be parsed, it only is copied.
+  *
+  * @method
+  * @param {const std::string&} line
+  * @return {bool}
+  */
+ static bool IsStartingLine(const std::string& line) { return line[0] == '<'; }
 
-  /**
-   * IsFinished
-   *
-   * `>` followed by an empty line will end the HTML block.
-   *
-   * @method
-   * @return {bool}
-   */
-  bool
-  IsFinished() const override
-  {
-    return this->isFinished;
-  }
+ /**
+  * IsFinished
+  *
+  * `>` followed by an empty line will end the HTML block.
+  *
+  * @method
+  * @return {bool}
+  */
+ bool IsFinished() const override { return this->isFinished; }
 
 protected:
   bool

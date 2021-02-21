@@ -24,22 +24,21 @@ namespace maddy {
  */
 class ParagraphParser : public BlockParser
 {
-public:
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-   ParagraphParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-  {}
+  ParagraphParser(
+      ParseLineCallbackType parseLineCallback,
+      GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        isStarted(false),
+        isFinished(false) {}
 
   /**
    * IsStartingLine
@@ -52,11 +51,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
-    return !line.empty();
-  }
+  static bool IsStartingLine(const std::string& line) { return !line.empty(); }
 
   /**
    * IsFinished
@@ -66,13 +61,9 @@ public:
    * @method
    * @return {bool}
    */
-  bool
-  IsFinished() const override
-  {
-    return this->isFinished;
-  }
+  bool IsFinished() const override { return this->isFinished; }
 
-protected:
+ protected:
   bool
   isInlineBlockAllowed() const override
   {

@@ -15,17 +15,18 @@ namespace maddy {
  *
  * @class
  */
-struct ParserConfig
-{
+struct ParserConfig {
   bool isEmphasizedParserEnabled;
   bool isHTMLWrappedInParagraph;
 
   ParserConfig()
-    : isEmphasizedParserEnabled(true)
-    , isHTMLWrappedInParagraph(true)
-  {}
-}; // class ParserConfig
+      : isEmphasizedParserEnabled(true), isHTMLWrappedInParagraph(true) {}
+
+  ParserConfig(bool isEmphasizedParserEnabled_, bool isHTMLWrappedInParagraph_)
+      : isEmphasizedParserEnabled(isEmphasizedParserEnabled_),
+        isHTMLWrappedInParagraph(isHTMLWrappedInParagraph_) {}
+};  // class ParserConfig
 
 // -----------------------------------------------------------------------------
 
-} // namespace maddy
+}  // namespace maddy

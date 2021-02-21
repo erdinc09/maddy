@@ -28,7 +28,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(MADDY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 file(GLOB_RECURSE MADDY_FILES ${MADDY_INCLUDE_DIR}/maddy/*.h)
-file(GLOB_RECURSE MADDY_TESTS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/maddy/*.*)
+file(GLOB_RECURSE MADDY_TESTS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/maddy/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/tests/maddy/*.h )
 
 # ------------------------------------------------------------------------------
 

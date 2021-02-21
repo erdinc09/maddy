@@ -36,13 +36,13 @@ public:
    * @param {std::string&} line The line to interpret
    * @return {void}
    */
-  void
-  Parse(std::string& line) override
-  {
-    std::regex re("(?!.*`.*|.*<code>.*)\\*(?!.*`.*|.*<\\/code>.*)([^\\*]*)\\*(?!.*`.*|.*<\\/code>.*)");
-    static std::string replacement = "<i>$1</i>";
-    line = std::regex_replace(line, re, replacement);
-  }
+ void Parse(std::string& line) const override {
+   std::regex re(
+       "(?!.*`.*|.*<code>.*)\\*(?!.*`.*|.*<\\/"
+       "code>.*)([^\\*]*)\\*(?!.*`.*|.*<\\/code>.*)");
+   static std::string replacement = "<i>$1</i>";
+   line = std::regex_replace(line, re, replacement);
+ }
 }; // class ItalicParser
 
 // -----------------------------------------------------------------------------

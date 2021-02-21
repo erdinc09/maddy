@@ -7,8 +7,8 @@
 // -----------------------------------------------------------------------------
 
 #include <functional>
-#include <string>
 #include <regex>
+#include <string>
 
 #include "maddy/blockparser.h"
 
@@ -25,26 +25,23 @@ namespace maddy {
  *
  * @class
  */
-class TableParser : public BlockParser
-{
-public:
+class TableParser : public BlockParser {
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-   TableParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-    , currentBlock(0)
-    , currentRow(0)
-  {}
+  TableParser(ParseLineCallbackType parseLineCallback,
+              GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        isStarted(false),
+        isFinished(false),
+        currentBlock(0),
+        currentRow(0) {}
 
   /**
    * IsStartingLine
@@ -55,9 +52,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
+  static bool IsStartingLine(const std::string& line) {
     static std::string matchString("|table>");
     return line == matchString;
   }
@@ -71,34 +66,27 @@ public:
    * @param {std::string&} line
    * @return {void}
    */
-  void
-  AddLine(std::string& line) override
-  {
-    if (!this->isStarted && line == "|table>")
-    {
+  void AddLine(std::string& line) override {
+    if (!this->isStarted && line == "|table>") {
       this->isStarted = true;
       return;
     }
 
-    if (this->isStarted)
-    {
-      if (line == "- | - | -")
-      {
+    if (this->isStarted) {
+      if (line == "- | - | -") {
         ++this->currentBlock;
         this->currentRow = 0;
         return;
       }
 
-      if (line == "|<table")
-      {
+      if (line == "|<table") {
         static std::string emptyLine = "";
         this->parseBlock(emptyLine);
         this->isFinished = true;
         return;
       }
 
-      if (this->table.size() < this->currentBlock + 1)
-      {
+      if (this->table.size() < this->currentBlock + 1) {
         this->table.push_back(std::vector<std::vector<std::string>>());
       }
       this->table[this->currentBlock].push_back(std::vector<std::string>());
@@ -106,8 +94,7 @@ public:
       std::string segment;
       std::stringstream streamToSplit(line);
 
-      while (std::getline(streamToSplit, segment, '|'))
-      {
+      while (std::getline(streamToSplit, segment, '|')) {
         this->parseLine(segment);
         this->table[this->currentBlock][this->currentRow].push_back(segment);
       }
@@ -124,28 +111,14 @@ public:
    * @method
    * @return {bool}
    */
-  bool
-  IsFinished() const override
-  {
-    return this->isFinished;
-  }
+  bool IsFinished() const override { return this->isFinished; }
 
-protected:
-  bool
-  isInlineBlockAllowed() const override
-  {
-    return false;
-  }
+ protected:
+  bool isInlineBlockAllowed() const override { return false; }
 
-  bool
-  isLineParserAllowed() const override
-  {
-    return true;
-  }
+  bool isLineParserAllowed() const override { return true; }
 
-  void
-  parseBlock(std::string&) override
-  {
+  void parseBlock(std::string&) override {
     result << "<table>";
 
     bool hasHeader = false;
@@ -153,60 +126,44 @@ protected:
     bool isFirstBlock = true;
     uint32_t currentBlockNumber = 0;
 
-    if (this->table.size() > 1)
-    {
+    if (this->table.size() > 1) {
       hasHeader = true;
     }
 
-    if (this->table.size() >= 3)
-    {
+    if (this->table.size() >= 3) {
       hasFooter = true;
     }
 
-    for (const std::vector<std::vector<std::string>>& block : this->table)
-    {
+    for (const std::vector<std::vector<std::string>>& block : this->table) {
       bool isInHeader = false;
       bool isInFooter = false;
       ++currentBlockNumber;
 
-      if (hasHeader && isFirstBlock)
-      {
+      if (hasHeader && isFirstBlock) {
         result << "<thead>";
         isInHeader = true;
-      }
-      else if (hasFooter && currentBlockNumber == this->table.size())
-      {
+      } else if (hasFooter && currentBlockNumber == this->table.size()) {
         result << "<tfoot>";
         isInFooter = true;
-      }
-      else
-      {
+      } else {
         result << "<tbody>";
       }
 
-      for (const std::vector<std::string>& row : block)
-      {
+      for (const std::vector<std::string>& row : block) {
         result << "<tr>";
 
-        for (const std::string& column : row)
-        {
-          if (isInHeader)
-          {
+        for (const std::string& column : row) {
+          if (isInHeader) {
             result << "<th>";
-          }
-          else
-          {
+          } else {
             result << "<td>";
           }
 
           result << column;
 
-          if (isInHeader)
-          {
+          if (isInHeader) {
             result << "</th>";
-          }
-          else
-          {
+          } else {
             result << "</td>";
           }
         }
@@ -214,16 +171,11 @@ protected:
         result << "</tr>";
       }
 
-      if (isInHeader)
-      {
+      if (isInHeader) {
         result << "</thead>";
-      }
-      else if (isInFooter)
-      {
+      } else if (isInFooter) {
         result << "</tfoot>";
-      }
-      else
-      {
+      } else {
         result << "</tbody>";
       }
 
@@ -233,14 +185,14 @@ protected:
     result << "</table>";
   }
 
-private:
+ private:
   bool isStarted;
   bool isFinished;
   uint32_t currentBlock;
   uint32_t currentRow;
   std::vector<std::vector<std::vector<std::string>>> table;
-}; // class TableParser
+};  // class TableParser
 
 // -----------------------------------------------------------------------------
 
-} // namespace maddy
+}  // namespace maddy

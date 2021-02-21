@@ -41,22 +41,21 @@ namespace maddy {
  */
 class CodeBlockParser : public BlockParser
 {
-public:
+ public:
   /**
    * ctor
    *
    * @method
    * @param {std::function<void(std::string&)>} parseLineCallback
-   * @param {std::function<std::shared_ptr<BlockParser>(const std::string& line)>} getBlockParserForLineCallback
+   * @param {std::function<std::shared_ptr<BlockParser>(const std::string&
+   * line)>} getBlockParserForLineCallback
    */
-   CodeBlockParser(
-    std::function<void(std::string&)> parseLineCallback,
-    std::function<std::shared_ptr<BlockParser>(const std::string& line)> getBlockParserForLineCallback
-  )
-    : BlockParser(parseLineCallback, getBlockParserForLineCallback)
-    , isStarted(false)
-    , isFinished(false)
-  {}
+  CodeBlockParser(
+      ParseLineCallbackType parseLineCallback,
+      GetBlockParserForLineCallbackType getBlockParserForLineCallback)
+      : BlockParser(parseLineCallback, getBlockParserForLineCallback),
+        isStarted(false),
+        isFinished(false) {}
 
   /**
    * IsStartingLine
@@ -71,9 +70,7 @@ public:
    * @param {const std::string&} line
    * @return {bool}
    */
-  static bool
-  IsStartingLine(const std::string& line)
-  {
+  static bool IsStartingLine(const std::string& line) {
     static std::regex re("^(?:`){3}$");
     return std::regex_match(line, re);
   }
